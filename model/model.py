@@ -302,6 +302,11 @@ def evaluateModel(model, data, verbose=False) -> tuple:
 
 
 def runModel() -> tuple:
+	"""Runs the model and retunrs the result metrics
+
+	Returns:
+		tuple: Result tuple containing (accuracy, recall, precision, F1)
+	"""	
     data = prepareDataset('data/processed-valid-data.csv',
                           'data/processed-invalid-data.csv', (0.80, 0.20), useValidCount=True)
     data = sliceDataset(data)
