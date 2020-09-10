@@ -118,22 +118,16 @@ def deepNeuralNetworkModel(data, verbose=False):
     model = keras.models.Sequential()
     model.add(keras.Dense(layer_zero_size, input_dim=input_dim, activation='selu',
 	kernel_initializer='he_normal'))
-    model.add(keras.layers.Dropout(0.01))
     model.add(keras.layers.Dense(layer_one_size, activation='selu',
 	kernel_initializer='he_normal'))
-    model.add(keras.layers.BatchNormalization())
     model.add(keras.layers.Dense(layer_two_size, activaton='selu',
 	kernel_initializer='he_normal'))
-    model.add(keras.layers.Dropout(0.01))
     model.add(keras.layers.Dense(layer_three_size, activation='selu',
 	kernel_initializer='he_normal'))
-    model.add(keras.layers.BatchNormalization())
     model.add(keras.layers.Dense(layer_four_size, activation='selu',
 	kernel_initializer='he_normal'))
-    model.add(keras.layers.Dropout(0.01))
     model.add(keras.layers.Dense(layer_five_size, activation='selu',
 	kernel_initializer='he_normal'))
-    model.add(keras.layers.BatchNormalization())
     model.add(keras.layers.Dense(output_dim, activation='softmax'))
 
     # add callback for early-stopping
