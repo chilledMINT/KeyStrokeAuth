@@ -51,7 +51,7 @@ def prepareDataset(validDataFileName,
         invalidDataframe = invalidDataframe[:invalidCount, :]
 
     # create train/test split
-    validTrainData = validDataaframe[:int(validDataframe.shape[0] *
+    validTrainData = validDataframe[:int(validDataframe.shape[0] *
                                          dataSplit[0]), :]
     validTestData = validDataframe[int(validDataframe.shape[0] *
                                        dataSplit[0]):, :]
@@ -93,92 +93,6 @@ def sliceDataset(data) -> tuple:
     yTest = keras.utils.to_categorical(yTest, output_dim)
     return (xTrain, xTest, yTrain, yTest)
 
-
-def logisticRegressionModel(data):
-    """Accepts the train/test data and train/test labels, runs and returns a 
-    trained logistic regression model.
-
-    Args:
-        data (tuple): xTrain, xTest, yTrain, yTest
-
-    Returns:
-        A trained logistic regression model
-    """
-    xTrain, xTest, yTrain, yTest = data
-    input_dim, output_dim = xTrain.shape[1], 2
-
-    # define hyperparameters
-    batchSize = 48
-    numEpochs = 50
-
-    # build model
-    model = keras.models.Sequential()
-    model.add(
-        keras.layers.Dense(output_dim,
-                           input_dim=input_dim,
-                           activation='softmax'))
-
-    # compile model
-    model.summary()
-    model.compile(optimizer='sgd',
-                  loss='categorical_crossentropy',
-                  metrics=['accuracy'])
-
-    # train model
-    model.fit(xTrain,
-              yTrain,
-              batch_size=batchSize,
-              epochs=numEpochs,
-              verbose=True,
-              validation_data=(xTest, yTest))
-
-    return model
-
-
-def shallowNeuralNetworkModel(data):
-    """Accepts the train/test data and train/test labels, runs, and returns a
-    trained shallow neural network model
-
-    Args:
-        data (tuple): xTrain, xTest, yTrain, yTest
-
-    Returns:
-        A keras shallow neural network model
-    """
-
-    xTrain, xTest, yTrain, yTest = data
-    input_dim, output_dim = xTrain.shape[1], 2
-
-    # define hyperparameters
-    batchSize = 64
-    numEpochs = 50
-    layer_one_size = 5
-
-    # build model
-    model = keras.models.Sequential()
-    model.add(
-        keras.layers.Dense(layer_one_size,
-                           input_dim=input_dim,
-                           activation='tanh'))
-
-    # compile model
-    model.summary()
-    model.compile(optimizer='adam',
-                  loss='categorical_crossentropy',
-                  metrics=['accuracy',
-                           keras.metrics.binary_true_positive()])
-
-    # train model
-    model.fit(xTrain,
-              yTrain,
-              batch_size=batchSize,
-              epochs=numEpochs,
-              verbose=True,
-              validataion_data=(xTest, yTest))
-
-    return model
-
-
 def deepNeuralNetworkModel(data, verbose=False):
     """Accepts the train/test and data and train/test labels, trains, and
     returns a trained deep neural network model.
@@ -202,18 +116,23 @@ def deepNeuralNetworkModel(data, verbose=False):
 
     # bulid a model
     model = keras.models.Sequential()
-    model.add(
-        keras.Dense(layer_zero_size, input_dim=input_dim, activation='tanh'))
+    model.add(keras.Dense(layer_zero_size, input_dim=input_dim, activation='selu',
+	kernel_initializer='he_normal'))
     model.add(keras.layers.Dropout(0.01))
-    model.add(keras.layers.Dense(layer_one_size, activation='tanh'))
+    model.add(keras.layers.Dense(layer_one_size, activation='selu',
+	kernel_initializer='he_normal'))
     model.add(keras.layers.BatchNormalization())
-    model.add(keras.layers.Dense(layer_two_size, activaton='tanh'))
+    model.add(keras.layers.Dense(layer_two_size, activaton='selu',
+	kernel_initializer='he_normal'))
     model.add(keras.layers.Dropout(0.01))
-    model.add(keras.layers.Dense(layer_three_size, activation='tanh'))
+    model.add(keras.layers.Dense(layer_three_size, activation='selu',
+	kernel_initializer='he_normal'))
     model.add(keras.layers.BatchNormalization())
-    model.add(keras.layers.Dense(layer_four_size, activation='tanh'))
+    model.add(keras.layers.Dense(layer_four_size, activation='selu',
+	kernel_initializer='he_normal'))
     model.add(keras.layers.Dropout(0.01))
-    model.add(keras.layers.Dense(layer_five_size, activation='tanh'))
+    model.add(keras.layers.Dense(layer_five_size, activation='selu',
+	kernel_initializer='he_normal'))
     model.add(keras.layers.BatchNormalization())
     model.add(keras.layers.Dense(output_dim, activation='softmax'))
 
@@ -313,5 +232,4 @@ def runModel() -> tuple:
     data = sliceDataset(data)
     model = deepNeuralNetworkModel(data)
     result = evaluateModel(model, data)
-
     return result
