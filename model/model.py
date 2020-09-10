@@ -308,7 +308,8 @@ def runModel() -> tuple:
 		tuple: Result tuple containing (accuracy, recall, precision, F1)
 	"""	
     data = prepareDataset('data/processed-valid-data.csv',
-                          'data/processed-invalid-data.csv', (0.80, 0.20), useValidCount=True)
+                          'data/processed-invalid-data.csv', (0.80, 0.20), 
+						  useValidCount=True)
     data = sliceDataset(data)
     model = deepNeuralNetworkModel(data)
     result = evaluateModel(model, data)
