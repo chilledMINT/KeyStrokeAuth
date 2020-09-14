@@ -1,127 +1,60 @@
 import csv
-import os
 import numpy as np
+from sklearn.model_selection import train_test_split
 
 
-def collectLabelledData(rawDataFileName, userId) -> list:
-    """Accepts the name of the raw data CSV fild and the ID of the valid user,
-    labels the row data correctly, and returns the resuntalt data as a list of
-    lists
+def split_data_to_xy(user_id, test_size=0.15, raw_data_file_name='raw-data.csv') -> tuple:
+    """Accepts the user id and returns the X and y values.
 
     Args:
-        rawDataFileName (string): Name of the raw Data File
-        userId (int): Id of current user
+         user_id (int): The user id of current valid user.
+         test_size (float): The fraction of data used for testing.
+         raw_data_file_name (string): The name of raw-data-file to extract data from.
 
     Returns:
-        list: Returns a list of lists containing data marked as valid and invalid
+        tuple: A tuple containing X_train, X_test, y_train and y_test
     """
-    labelledData = []
 
-    # operate on raw data file
-    with open(rawDataFileName, 'r') as rawDataFile:
-        rawData = csv.reader(rawDataFile, delimiter=',', lineterminator='\n')
+    X = []
+    y = []
 
-        # iteratively process data
-        for rawRow in rawData:
-            labelledRow = []
+    # prepare valid/invalid output
+    with open(raw_data_file_name, 'r') as raw_data_file:
+        raw_data = csv.reader(raw_data_file, delimiter=',', lineterminator='\n')
 
-            # label data
-            if int(rawRow[0]) == userId:
-                labelledRow.append(1)
+        for row in raw_data:
+            if int(row[0]) == user_id:
+                y.append(1)
             else:
-                labelledRow.append(0)
+                y.append(0)
+            cur_data = row[3:]
+            X.append(cur_data)
 
-            # copy keystroke data
-            labelledRow += rawRow[3:]
-            labelledData.append(labelledRow)
-    return labelledData
+    info_matrix = np.array(X, dtype=np.float)
+    info_min = info_matrix.min(axis=0)
+    info_max = info_matrix.max(axis=0)
 
-
-def writeCSVData(targetFileName, data) -> None:
-    """Accepts a target CSV file name and the data as a list of lists, and
-    writes the data contents row-by-row to the target file
-
-    Args:
-        targetFileName (string): Name of the file where you want to write data
-        data (list of lists): This the a list of lists of data as valid vs
-        invalid
-    """
-
-    # operate on the target data file
-    with open(targetFileName, 'w') as targetFile:
-        target = csv.reader(targetFile, delimiter=',', lineterminator='\n')
-
-        # iteratively write data
-        for row in data:
-            target.writerow(row)
-
-
-def writeCSVData(targetFileName, data) -> None:
-    """Accepts a target CSV file name and the data as a list of lists, and
-    writes the data contents row-by-row to the target file.
-
-    Args:
-        targetFileName (string): Name of the file where you want to write data
-        data (list): A list of lists containign data
-    """
-    with open(targetFileName, 'w') as targetFile:
-        target = csv.writer(targetFile, delimiter=',', lineterminator='\n')
-
-        # iteratively write data
-        for row in data:
-            target.writerow(row)
-
-
-def processLabelledData(labelledData, validDataFileName,
-                        invalidDataFileName) -> None:
-    """Accepts the labelled data, as well as the valid and invalid processed
-    data file names, collects the labelled data, processes this data, and writes
-    the valid and invalid output
-
-    Args:
-        labelledData (list): List containing valid vs invalid data
-        validDataFileName (string) The name of valid data file.
-        invalidDataFileName (string): The name of invalid data file.
-    """
-    validLabelledData = []
-    invalidLabelledData = []
-
-    # convert data to matrix
-    dataMatrix = np.array(labelledData, dtype=np.float32)
-    dataMean = dataMatrix.mean(axis=0)[1:]
-    dataStd = dataMatrix.std(axis=0)[1:]
-
-    # split labelled data
-    for data in labelledData:
-        dataArr = np.array(data[1:], dtype=np.float32)
+    x = []
+    for info in info_matrix:
+        info_arr = np.array(info, dtype=np.float)
 
         # normalize the data
-        dataArr = (dataArr - dataMean) / dataStd
+        info_arr = (info_arr - info_min) / (info_max - info_min + np.finfo(float).eps)
+        x.append(info_arr)
 
-        # sort the data
-        if data[0] == 1:
-            validLabelledData.append(dataArr.tolist())
-        else:
-            invalidLabelledData.append(dataArr.tolist())
-
-    # write data
-    writeCSVData(validDataFileName, validLabelledData)
-    writeCSVData(invalidDataFileName, invalidLabelledData)
+    x = np.array(x)
+    # splitting dataset into training and testing set
+    X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=test_size, random_state=42)
+    return X_train, X_test, y_train, y_test
 
 
-def buildData(validId) -> None:
-    """Accepts the ID for the valid user and builds the valid and invalid
-    dataset.
+def build_data(user_id) -> tuple:
+    """Builds and returns the data according to the user_id.
 
     Args:
-        validId (int): The id of current(valid) user.
-    """
-    try:
-        os.remove('data/processed-valid-data.csv')
-        os.remove('data/processed-invalid-data.csv')
-    except:
-        pass
+         user_id (int): The unique id of certain user.
 
-    labelledData = collectLabelledData('data/raw-data.csv', validId)
-    processLabelledData(labelledData, 'data/processed-valid-data.csv',
-                        'data/processed-invalid-data.csv')
+    Returns:
+        tuple: A tuple containing X_train, X_test, y_train and y_test
+    """
+    return split_data_to_xy(user_id=user_id, test_size=0.15, raw_data_file_name='raw-data.csv')
