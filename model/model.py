@@ -34,9 +34,9 @@ def deep_neural_network_model(X_train, y_train, verbose=False):
 
     # build the model
     model = keras.models.Sequential()
-    model.add(keras.layers.Flatten(input_shape=[31,1]))
+    model.add(keras.layers.Flatten(input_shape=[31, 1]))
     model.add(keras.layers.Dense(layer_zero_size, input_dim=input_dim,
-                           activation='selu', kernel_initializer='he_normal'))
+                                 activation='selu', kernel_initializer='he_normal'))
     model.add(keras.layers.Dense(layer_one_size, activation='selu',
                                  kernel_initializer='he_normal'))
     model.add(keras.layers.Dense(layer_two_size, activation='selu',
@@ -72,6 +72,7 @@ def deep_neural_network_model(X_train, y_train, verbose=False):
 
     return model
 
+
 def evaluate_model(model, X_test, y_test) -> tuple:
     """Accepts trained model and test set. Evaluates the model on the test set.
     Returns tuple containing accuracy, precision, recall and f1 score.
@@ -92,7 +93,7 @@ def evaluate_model(model, X_test, y_test) -> tuple:
     return accuracy, precision, recall, f1
 
 
-def run_model(X_train, X_test, y_train, y_test) -> tuple:
+def run_model(X_train, X_test, y_train, y_test) -> list:
     model = deep_neural_network_model(X_train, y_train)
     result = list(evaluate_model(model, X_test, y_test))
     return result
