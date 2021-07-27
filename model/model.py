@@ -24,7 +24,7 @@ def deep_neural_network_model(X_train, y_train, verbose=False):
 
     # define hyper-parameters
     batch_size = 32
-    num_epochs = 30
+    num_epochs = 50
     layer_zero_size = 256
     layer_one_size = 128
     layer_two_size = 128
@@ -50,12 +50,12 @@ def deep_neural_network_model(X_train, y_train, verbose=False):
     model.add(keras.layers.Dense(output_dim, activation='sigmoid'))
 
     # add callback for early stopping
-    callback = keras.callbacks.EarlyStopping(patience=5,
+    callback = keras.callbacks.EarlyStopping(patience=50,
                                              restore_best_weights=True)
     # compile model
-    optimizer = keras.optimizers.SGD(lr=0.001, momentum=0.9, nesterov=True)
+    optimizer = keras.optimizers.SGD(lr=0.0001, momentum=0.9, nesterov=True)
     model.compile(loss='poisson', optimizer=optimizer,
-                  metrics='accuracy')
+                  metrics=[tf.keras.metrics.FalsePositives(), tf.keras.metrics.BinaryAccuracy()])
 
     # train model
     X_train = np.array(X_train)
